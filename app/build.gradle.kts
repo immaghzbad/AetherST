@@ -12,11 +12,11 @@ android {
   compileSdk = 36
 
   defaultConfig {
-    applicationId = "io.github.immaghzbad.aetherst"
+    applicationId = "com.aethery.vpn"
     minSdk = 26
     targetSdk = 36
-    versionCode = 8
-    versionName = "1.6.9"
+    versionCode = 9
+    versionName = "1.7.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -38,9 +38,9 @@ android {
   signingConfigs {
     create("release") {
       storeFile = if (System.getenv("KEYSTORE_FILE") != null) file(System.getenv("KEYSTORE_FILE")) else file("$rootDir/app/src/main/release.jks")
-      storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "aether_password"
-      keyAlias = System.getenv("KEY_ALIAS") ?: "aether_key"
-      keyPassword = System.getenv("KEY_PASSWORD") ?: "aether_password"
+      storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+      keyAlias = System.getenv("KEY_ALIAS") ?: ""
+      keyPassword = System.getenv("KEY_PASSWORD") ?: ""
       enableV1Signing = true
       enableV2Signing = true
       enableV3Signing = true

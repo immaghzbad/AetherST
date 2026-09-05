@@ -21,6 +21,7 @@ import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import io.github.immaghzbad.aetherst.MainActivity
 import io.github.immaghzbad.aetherst.R
+import io.github.immaghzbad.aetherst.core.AutoConnectManager
 import io.github.immaghzbad.aetherst.core.ConnectionController
 import io.github.immaghzbad.aetherst.core.DnsMap
 import io.github.immaghzbad.aetherst.core.HevEngineSettings
@@ -161,11 +162,17 @@ class AetherVpnService : VpnService() {
                     scope.launch { handleNetworkLost() }
                 }
                 override fun onAvailable(network: Network) {
-                    scope.launch { handleNetworkAvailable() }
+                    scope.launch {
+                        handleNetworkAvailable()
+                        AutoConnectManager.handleNetworkChange(this@AetherVpnService)
+                    }
                 }
                 override fun onCapabilitiesChanged(network: Network, caps: NetworkCapabilities) {
                     if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
-                        scope.launch { handleNetworkAvailable() }
+                        scope.launch {
+                            handleNetworkAvailable()
+                            AutoConnectManager.handleNetworkChange(this@AetherVpnService)
+                        }
                     }
                 }
             }
@@ -295,6 +302,8 @@ class AetherVpnService : VpnService() {
         when (intent?.action) {
             ACTION_START -> {
                 isUserInitiatedStop = false
+                AutoConnectManager.clearManualDisconnect(this)
+                AutoConnectManager.clearCrashCount(this)
                 autoReconnectJob?.cancel()
                 autoReconnectJob = null
                 showInitialNotification()
@@ -307,6 +316,7 @@ class AetherVpnService : VpnService() {
             }
             ACTION_STOP -> {
                 isUserInitiatedStop = true
+                AutoConnectManager.setManualDisconnect(this, true)
                 showInitialNotification()
                 stopVpnService(commandCounter.incrementAndGet())
             }

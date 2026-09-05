@@ -88,12 +88,14 @@ import io.github.immaghzbad.aetherst.platform.isDesktop
 import io.github.immaghzbad.aetherst.platform.getSystemUtils
 import io.github.immaghzbad.aetherst.platform.getDeviceModel
 import io.github.immaghzbad.aetherst.platform.getOsVersion
+import io.github.immaghzbad.aetherst.platform.getSettings
 import io.github.immaghzbad.aetherst.shared.desktop.TrayState
 import io.github.immaghzbad.aetherst.shared.ui.AetherViewModel
 import io.github.immaghzbad.aetherst.shared.ui.OnboardingViewModel
 import io.github.immaghzbad.aetherst.shared.ui.components.IosToast
 import io.github.immaghzbad.aetherst.shared.ui.components.PlatformBackHandler
 import io.github.immaghzbad.aetherst.shared.model.AetherProtocol
+import io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings
 import kotlin.math.roundToInt
 
 private val IosNavBackground = AppPalette.surfaceRaised
@@ -404,7 +406,25 @@ private fun DashboardContent(viewModel: AetherViewModel, scaleFactor: Float, pla
                         onShowToast = { msg: String, err: Boolean -> viewModel.showToast(msg, err) },
                         initialPage = if (zeroTrustOpen) SettingsPage.ZEROTRUST else null,
                         onSubPageClosed = { zeroTrustOpen = false },
-                        bottomContentPadding = totalNavBarHeight
+                        bottomContentPadding = totalNavBarHeight,
+                        loadAutoConnectSettings = {
+                            val s = getSettings(platformContext)
+                            io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings(
+                                autoConnectOnStart = s.getBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_ON_START, false),
+                                autoConnectOnBoot = s.getBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_ON_BOOT, false),
+                                autoConnectOnNetwork = s.getBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_ON_NETWORK, false),
+                                autoRestartOnCrash = s.getBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_RESTART_ON_CRASH, false),
+                                autoConnectAfterCrash = s.getBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_AFTER_CRASH, false)
+                            )
+                        },
+                        saveAutoConnectSettings = { acs ->
+                            val s = getSettings(platformContext)
+                            s.putBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_ON_START, acs.autoConnectOnStart)
+                            s.putBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_ON_BOOT, acs.autoConnectOnBoot)
+                            s.putBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_ON_NETWORK, acs.autoConnectOnNetwork)
+                            s.putBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_RESTART_ON_CRASH, acs.autoRestartOnCrash)
+                            s.putBoolean(io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings.PREF_AUTO_CONNECT_AFTER_CRASH, acs.autoConnectAfterCrash)
+                        }
                     )
                     Screen.Logs -> LogsScreen(
                         viewModel = viewModel,

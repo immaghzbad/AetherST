@@ -112,10 +112,10 @@ compose.desktop {
         mainClass = "io.github.immaghzbad.aetherst.MainKt"
         nativeDistributions {
             targetFormats(org.jetbrains.compose.desktop.application.dsl.TargetFormat.Msi, org.jetbrains.compose.desktop.application.dsl.TargetFormat.Exe)
-            packageName = "AetherST-Tunnel"
+            packageName = "AetherY"
             packageVersion = "1.1.1"
-            vendor = "ImMaghzBad"
-            description = "AetherST High-Performance Proxy Tunnel"
+            vendor = "AetherY"
+            description = "AetherY High-Performance Proxy Tunnel"
 
             appResourcesRootDir.set(project.layout.projectDirectory.dir("src/desktopMain/resources"))
 

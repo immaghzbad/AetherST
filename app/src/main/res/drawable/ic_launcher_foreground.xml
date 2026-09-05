@@ -4,16 +4,24 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- Green stripe (top) -->
     <path
-        android:fillColor="#00F0FF"
-        android:pathData="M54,24 L76,32 V52 C76,66 66,78 54,84 C42,78 32,66 32,52 V32 Z" />
+        android:fillColor="#239F40"
+        android:pathData="M0,0 L108,0 L108,36 L0,36 Z" />
+    <!-- White stripe (middle) -->
     <path
-        android:fillColor="#38BDF8"
-        android:pathData="M54,30 L70,36 V52 C70,63 62,72 54,77 C46,72 38,63 38,52 V36 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M0,36 L108,36 L108,72 L0,72 Z" />
+    <!-- Red stripe (bottom) -->
     <path
-        android:fillColor="#0F172A"
-        android:pathData="M54,38 L64,42 V52 C64,59 59,65 54,68 C49,65 44,59 44,52 V42 Z" />
+        android:fillColor="#DA0000"
+        android:pathData="M0,72 L108,72 L108,108 L0,108 Z" />
+    <!-- Iran emblem (simplified) in center -->
     <path
-        android:fillColor="#38BDF8"
-        android:pathData="M54,44 L59,46 V52 C59,55 56,58 54,60 C52,58 49,55 49,52 V46 Z" />
+        android:fillColor="#239F40"
+        android:pathData="M54,44 L58,48 L62,44 L66,48 L62,52 L66,56 L62,60 L58,56 L54,60 L50,56 L46,60 L42,56 L46,52 L42,48 L46,44 L50,48 Z" />
+    <!-- Sword shape in emblem -->
+    <path
+        android:fillColor="#DA0000"
+        android:pathData="M54,48 L55,54 L54,56 L53,54 Z" />
 </vector>

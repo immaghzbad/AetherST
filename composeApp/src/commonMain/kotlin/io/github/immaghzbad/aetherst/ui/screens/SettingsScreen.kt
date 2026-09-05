@@ -77,6 +77,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.VerticalSplit
 import androidx.compose.material.icons.filled.VpnLock
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Wifi
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -113,6 +114,7 @@ import io.github.immaghzbad.aetherst.shared.model.AetherNoise
 import io.github.immaghzbad.aetherst.shared.model.AetherPerfProfile
 import io.github.immaghzbad.aetherst.shared.model.AetherProtocol
 import io.github.immaghzbad.aetherst.shared.model.AetherScanMode
+import io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings
 import io.github.immaghzbad.aetherst.shared.model.ConnectionMode
 import io.github.immaghzbad.aetherst.shared.model.TunnelEngine
 import io.github.immaghzbad.aetherst.shared.ui.components.AppDivider
@@ -142,6 +144,7 @@ enum class SettingsPage(val title: String) {
     ZEROTRUST("Cloudflare Zero Trust"),
     NETWORK("Network Parameters"),
     SECURITY("Security & Reliability"),
+    AUTO_CONNECT("Auto-Connect & Recovery"),
     DIAGNOSTICS("Diagnostics & Core"),
     SYSTEM("System & Maintenance"),
     HEV_ENGINE("HEV Engine"),
@@ -171,6 +174,8 @@ fun SettingsScreen(
     initialPage: SettingsPage? = null,
     onSubPageClosed: () -> Unit = {},
     bottomContentPadding: Dp = 0.dp,
+    loadAutoConnectSettings: () -> AutoConnectSettings = { AutoConnectSettings() },
+    saveAutoConnectSettings: (AutoConnectSettings) -> Unit = {},
 ) {
     val strings = LocalAppStrings.current
     var currentPage by remember { mutableStateOf(initialPage) }
@@ -201,7 +206,9 @@ fun SettingsScreen(
             isOptimizingMtu = isOptimizingMtu,
             onShowToast = onShowToast,
             bottomContentPadding = bottomContentPadding,
-            onOpenDnsOptimizer = onOpenDnsOptimizer
+            onOpenDnsOptimizer = onOpenDnsOptimizer,
+            loadAutoConnectSettings = loadAutoConnectSettings,
+            saveAutoConnectSettings = saveAutoConnectSettings
         )
         return
     }
@@ -236,6 +243,7 @@ fun SettingsScreen(
         }
         item { CategoryCard(icon = Icons.Default.Language, iconBg = IosActiveBlue, title = strings.CAT_NETWORK_PARAMETERS, subtitle = strings.CAT_NETWORK_PARAMETERS_SUB, onClick = { currentPage = SettingsPage.NETWORK }) }
         item { CategoryCard(icon = Icons.Default.Lock, iconBg = AppPalette.statusError, title = strings.CAT_SECURITY_RELIABILITY, subtitle = strings.CAT_SECURITY_RELIABILITY_SUB, onClick = { currentPage = SettingsPage.SECURITY }) }
+        item { CategoryCard(icon = Icons.Default.Repeat, iconBg = AppPalette.statusConnected, title = strings.CAT_AUTO_CONNECT, subtitle = strings.CAT_AUTO_CONNECT_SUB, onClick = { currentPage = SettingsPage.AUTO_CONNECT }) }
         item { CategoryCard(icon = Icons.Default.BugReport, iconBg = AppPalette.debugCyan, title = strings.CAT_DIAGNOSTICS_CORE, subtitle = strings.CAT_DIAGNOSTICS_CORE_SUB, onClick = { currentPage = SettingsPage.DIAGNOSTICS }) }
         if (isAndroid) {
             item { CategoryCard(icon = Icons.Default.Memory, iconBg = AppPalette.accentVariantAlt, title = strings.CAT_HEV_ENGINE, subtitle = strings.CAT_HEV_ENGINE_SUB, onClick = { currentPage = SettingsPage.HEV_ENGINE }) }
@@ -259,7 +267,7 @@ private fun CategoryCard(icon: ImageVector, iconBg: Color, title: String, subtit
 }
 
 @Composable
-private fun SettingsSubPage(page: SettingsPage, config: AetherConfig, isBatteryOptimized: Boolean, onBack: () -> Unit, onUpdateConfig: (AetherConfig) -> Unit, onUpdateTunnelEngine: (TunnelEngine) -> Unit, onApplyPreset: (String) -> Unit, onOpenSplitTunneling: () -> Unit, onOpenRoutingRules: () -> Unit, onRequestBatteryOptimization: () -> Unit, onOpenVpnSettings: () -> Unit, onResetAll: () -> Unit, onExportBackup: () -> Unit, onImportBackup: () -> Unit, onOptimizeMtu: () -> Unit, isOptimizingMtu: Boolean, onShowToast: (String, Boolean) -> Unit, bottomContentPadding: Dp, onOpenDnsOptimizer: () -> Unit = {}) {
+private fun SettingsSubPage(page: SettingsPage, config: AetherConfig, isBatteryOptimized: Boolean, onBack: () -> Unit, onUpdateConfig: (AetherConfig) -> Unit, onUpdateTunnelEngine: (TunnelEngine) -> Unit, onApplyPreset: (String) -> Unit, onOpenSplitTunneling: () -> Unit, onOpenRoutingRules: () -> Unit, onRequestBatteryOptimization: () -> Unit, onOpenVpnSettings: () -> Unit, onResetAll: () -> Unit, onExportBackup: () -> Unit, onImportBackup: () -> Unit, onOptimizeMtu: () -> Unit, isOptimizingMtu: Boolean, onShowToast: (String, Boolean) -> Unit, bottomContentPadding: Dp, onOpenDnsOptimizer: () -> Unit = {}, loadAutoConnectSettings: () -> AutoConnectSettings = { AutoConnectSettings() }, saveAutoConnectSettings: (AutoConnectSettings) -> Unit = {}) {
     var showResetDialog by remember { mutableStateOf(false) }
     var showAdvancedZt by remember { mutableStateOf(false) }
     val isAndroid = remember { try { Class.forName("android.os.Build"); true } catch(_: Throwable) { false } }
@@ -278,8 +286,9 @@ private fun SettingsSubPage(page: SettingsPage, config: AetherConfig, isBatteryO
                     SettingsPage.PROTOCOL -> strings.CAT_PROTOCOL_TRANSPORT
                     SettingsPage.ZEROTRUST -> strings.CAT_ZEROTRUST
                     SettingsPage.NETWORK -> strings.CAT_NETWORK_PARAMETERS
-                    SettingsPage.SECURITY -> strings.CAT_SECURITY_RELIABILITY
-                    SettingsPage.DIAGNOSTICS -> strings.CAT_DIAGNOSTICS_CORE
+                SettingsPage.SECURITY -> strings.CAT_SECURITY_RELIABILITY
+                SettingsPage.AUTO_CONNECT -> strings.CAT_AUTO_CONNECT
+                SettingsPage.DIAGNOSTICS -> strings.CAT_DIAGNOSTICS_CORE
                     SettingsPage.HEV_ENGINE -> strings.CAT_HEV_ENGINE
                     SettingsPage.SYSTEM -> strings.CAT_SYSTEM_MAINTENANCE
                     SettingsPage.INTERFACE -> strings.CAT_USER_INTERFACE
@@ -294,6 +303,7 @@ private fun SettingsSubPage(page: SettingsPage, config: AetherConfig, isBatteryO
                 SettingsPage.ZEROTRUST -> item { ZeroTrustPage(config, showAdvancedZt, onUpdateConfig) { showAdvancedZt = it } }
                 SettingsPage.NETWORK -> item { NetworkPage(config, onUpdateConfig, onShowToast, onOpenDnsOptimizer) }
                 SettingsPage.SECURITY -> item { SecurityPage(config, isAndroid, isBatteryOptimized, onUpdateConfig, onRequestBatteryOptimization) }
+                SettingsPage.AUTO_CONNECT -> item { AutoConnectPage(isAndroid, loadAutoConnectSettings, saveAutoConnectSettings) }
                 SettingsPage.DIAGNOSTICS -> item { DiagnosticsPage(config, onUpdateConfig) }
                 SettingsPage.HEV_ENGINE -> item { HevEnginePage(config, onUpdateConfig) }
                 SettingsPage.SYSTEM -> item { SystemPage(isAndroid, onExportBackup, onImportBackup, onOpenVpnSettings) { showResetDialog = true } }
@@ -644,6 +654,103 @@ private fun encodeUpstreamCredential(s: String): String = s.replace("@", "%40").
             Text(strings.ABOUT_HEV_ENGINE, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(6.dp))
             Text(strings.HEV_ABOUT_DESC, color = IosSecondaryLabel, fontSize = 12.sp, lineHeight = 17.sp)
+        }
+    }
+}
+
+@Composable private fun AutoConnectPage(isAndroid: Boolean, loadAutoConnectSettings: () -> AutoConnectSettings, saveAutoConnectSettings: (AutoConnectSettings) -> Unit) {
+    val strings = LocalAppStrings.current
+    var settings by remember { mutableStateOf(loadAutoConnectSettings()) }
+
+    IosGroupCard { Column {
+        IosSwitchRow(
+            icon = Icons.Default.PlayArrow,
+            iconBg = IosActiveGreen,
+            title = strings.AUTO_CONNECT_ON_START,
+            subtitle = strings.AUTO_CONNECT_ON_START_SUB,
+            checked = settings.autoConnectOnStart,
+            onCheckedChange = {
+                settings = settings.copy(autoConnectOnStart = it)
+                saveAutoConnectSettings(settings)
+            },
+            testTag = "switch_auto_connect_start"
+        )
+        AppDivider()
+        IosSwitchRow(
+            icon = Icons.Default.Restore,
+            iconBg = IosActiveBlue,
+            title = strings.AUTO_CONNECT_ON_BOOT,
+            subtitle = if (isAndroid) strings.AUTO_CONNECT_ON_BOOT_SUB else "Only available on Android",
+            checked = settings.autoConnectOnBoot,
+            enabled = isAndroid,
+            onCheckedChange = {
+                if (isAndroid) {
+                    settings = settings.copy(autoConnectOnBoot = it)
+                    saveAutoConnectSettings(settings)
+                }
+            },
+            testTag = "switch_auto_connect_boot"
+        )
+        AppDivider()
+        IosSwitchRow(
+            icon = Icons.Default.Wifi,
+            iconBg = AppPalette.accentVariant,
+            title = strings.AUTO_CONNECT_ON_NETWORK,
+            subtitle = if (isAndroid) strings.AUTO_CONNECT_ON_NETWORK_SUB else "Only available on Android",
+            checked = settings.autoConnectOnNetwork,
+            enabled = isAndroid,
+            onCheckedChange = {
+                if (isAndroid) {
+                    settings = settings.copy(autoConnectOnNetwork = it)
+                    saveAutoConnectSettings(settings)
+                }
+            },
+            testTag = "switch_auto_connect_network"
+        )
+        AppDivider()
+        IosSwitchRow(
+            icon = Icons.Default.Refresh,
+            iconBg = AppPalette.statusScanning,
+            title = strings.AUTO_RESTART_ON_CRASH,
+            subtitle = if (isAndroid) strings.AUTO_RESTART_ON_CRASH_SUB else "Only available on Android",
+            checked = settings.autoRestartOnCrash,
+            enabled = isAndroid,
+            onCheckedChange = {
+                if (isAndroid) {
+                    settings = settings.copy(autoRestartOnCrash = it)
+                    saveAutoConnectSettings(settings)
+                }
+            },
+            testTag = "switch_auto_restart_crash"
+        )
+        AppDivider()
+        IosSwitchRow(
+            icon = Icons.Default.Repeat,
+            iconBg = AppPalette.statusConnected,
+            title = strings.AUTO_CONNECT_AFTER_CRASH,
+            subtitle = if (isAndroid) strings.AUTO_CONNECT_AFTER_CRASH_SUB else "Only available on Android",
+            checked = settings.autoConnectAfterCrash,
+            enabled = isAndroid,
+            onCheckedChange = {
+                if (isAndroid) {
+                    settings = settings.copy(autoConnectAfterCrash = it)
+                    saveAutoConnectSettings(settings)
+                }
+            },
+            testTag = "switch_auto_connect_crash"
+        )
+    } }
+    Spacer(modifier = Modifier.height(8.dp))
+    IosGroupCard {
+        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Text(strings.CAT_AUTO_CONNECT, fontWeight = FontWeight.Bold, color = Color.White, fontSize = 14.sp)
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                "Auto-Connect: Restores your last VPN connection automatically.\n\n" +
+                "Crash Recovery: If the app crashes more than 3 times in 60 seconds, auto-restart is disabled to prevent crash loops.\n\n" +
+                "Manual Disconnect: If you tap Disconnect, auto-connect is paused until you connect again.",
+                color = IosSecondaryLabel, fontSize = 12.sp, lineHeight = 17.sp
+            )
         }
     }
 }

@@ -39,6 +39,7 @@ import io.github.immaghzbad.aetherst.shared.desktop.AetherTray
 import io.github.immaghzbad.aetherst.shared.desktop.TrayActions
 import io.github.immaghzbad.aetherst.shared.desktop.TrayState
 import io.github.immaghzbad.aetherst.shared.model.ConnectionMode
+import io.github.immaghzbad.aetherst.shared.model.AutoConnectSettings
 import io.github.immaghzbad.aetherst.shared.core.SingleInstanceLock
 import io.github.immaghzbad.aetherst.shared.model.ConnectionStatus
 import java.awt.GraphicsEnvironment
@@ -409,6 +410,29 @@ fun main(args: Array<String> = emptyArray()) {
                 AetherTray.setConnectionState(
                     status == ConnectionStatus.RUNNING || status == ConnectionStatus.RECONNECTING
                 )
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            runCatching {
+                kotlinx.coroutines.delay(2000)
+                val context = PlatformContext()
+                val s = getSettings(context)
+                val onStart = s.getBoolean(AutoConnectSettings.PREF_AUTO_CONNECT_ON_START, false)
+                val manual = s.getBoolean(AutoConnectSettings.PREF_MANUAL_DISCONNECT, false)
+                if (!onStart || manual) return@runCatching
+                val st = ConnectionController.status.value
+                if (st == ConnectionStatus.RUNNING || st == ConnectionStatus.TUN_ACTIVE ||
+                    st == ConnectionStatus.STARTING || st == ConnectionStatus.VALIDATING ||
+                    st == ConnectionStatus.RECONNECTING) return@runCatching
+                val config = AetherConfigRepository.getInstance(s).config.value
+                if (config.connectionMode == ConnectionMode.TUNNEL &&
+                    !getSystemUtils(context).isAdministrator()) {
+                    try { io.github.immaghzbad.aetherst.shared.desktop.DesktopLogger.w("Main", "Auto-connect on app start skipped: TUNNEL mode needs admin") } catch (_: Throwable) {}
+                    return@runCatching
+                }
+                try { io.github.immaghzbad.aetherst.shared.desktop.DesktopLogger.i("Main", "Auto-connecting on app start") } catch (_: Throwable) {}
+                ConnectionController.getImpl(context).start()
             }
         }
 

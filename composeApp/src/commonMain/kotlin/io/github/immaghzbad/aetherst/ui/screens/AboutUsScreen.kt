@@ -30,11 +30,9 @@ private val IosActiveBlue = AppPalette.accent
 private val IosActiveGreen = AppPalette.statusConnected
 private val IosPurple = AppPalette.accentVariant
 
-private const val UserGithubUrl = "https://github.com/immaghzbad"
 private const val AetherRepositoryUrl = "https://github.com/CluvexStudio/Aether"
 private const val HevRepositoryUrl = "https://github.com/heiher/hev-socks5-tunnel"
 private const val PsiphonRepositoryUrl = "https://github.com/Psiphon-Labs/psiphon-tunnel-core"
-private const val DeveloperTelegramUrl = "https://t.me/PowerSigma"
 
 @Composable
 fun AboutUsScreen(
@@ -124,20 +122,6 @@ fun AboutUsScreen(
             item {
                 SectionCard {
                     SectionTitle(strings.ABOUT_LINKS)
-                    IosActionRow(
-                        iconBg = IosActiveBlue.copy(alpha = 0.16f),
-                        title = strings.ABOUT_LINK_MAINTAINER,
-                        subtitle = "github.com/immaghzbad",
-                        onClick = { uriHandler.openUri(UserGithubUrl) }
-                    )
-                    AppDivider()
-                    IosActionRow(
-                        iconBg = IosActiveBlue.copy(alpha = 0.16f),
-                        title = strings.ABOUT_LINK_TELEGRAM,
-                        subtitle = strings.ABOUT_LINK_TELEGRAM_SUB,
-                        onClick = { uriHandler.openUri(DeveloperTelegramUrl) }
-                    )
-                    AppDivider()
                     IosActionRow(
                         iconBg = IosActiveGreen.copy(alpha = 0.16f),
                         title = strings.ABOUT_LINK_AETHER,
@@ -278,37 +262,6 @@ private fun AboutFooter() {
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = strings.ABOUT_FOOTER_BUILT,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.textSecondary,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
-            )
-            Icon(
-                imageVector = Icons.Default.Favorite,
-                contentDescription = null,
-                tint = Color(0xFFFF375F),
-                modifier = Modifier.size(14.dp)
-            )
-            Text(
-                text = strings.ABOUT_FOOTER_BY,
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.textSecondary,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-        Spacer(Modifier.height(8.dp))
-        Text(
-            text = strings.ABOUT_FOOTER_DESC,
-            style = MaterialTheme.typography.bodySmall,
-            color = colors.textSecondary.copy(alpha = 0.7f),
-            textAlign = TextAlign.Center,
-            fontSize = 11.sp,
-            lineHeight = 16.sp,
-            modifier = Modifier.padding(horizontal = 24.dp)
-        )
+        Spacer(Modifier.height(4.dp))
     }
 }

@@ -774,6 +774,18 @@ interface AppStrings {
     val DNS_EMPTY_SELECTION: String
     val DNS_APPLIED: String
     val TOAST_DNS_APPLIED: String
+    val CAT_AUTO_CONNECT: String
+    val CAT_AUTO_CONNECT_SUB: String
+    val AUTO_CONNECT_ON_START: String
+    val AUTO_CONNECT_ON_START_SUB: String
+    val AUTO_CONNECT_ON_BOOT: String
+    val AUTO_CONNECT_ON_BOOT_SUB: String
+    val AUTO_CONNECT_ON_NETWORK: String
+    val AUTO_CONNECT_ON_NETWORK_SUB: String
+    val AUTO_RESTART_ON_CRASH: String
+    val AUTO_RESTART_ON_CRASH_SUB: String
+    val AUTO_CONNECT_AFTER_CRASH: String
+    val AUTO_CONNECT_AFTER_CRASH_SUB: String
 }
 
 val LocalAppStrings = compositionLocalOf<AppStrings> { StringsEn }

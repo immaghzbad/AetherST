@@ -1,20 +1,12 @@
 {
-  "name": "aetherst-tunnel",
+  "name": "aethery",
   "version": "1.0.0",
-  "description": "<p align=\"center\">\r   <img src=\"https://img.shields.io/badge/AetherST-Tunnel-007AFF?style=for-the-badge&logo=shield&logoColor=white\" alt=\"AetherST Logo\" width=\"200\">\r </p>",
+  "description": "AetherY - Advanced Multi-Protocol VPN Client",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/immaghzbad/AetherST.git"
-  },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/immaghzbad/AetherST/issues"
-  },
-  "homepage": "https://github.com/immaghzbad/AetherST#readme"
+  "license": "ISC"
 }

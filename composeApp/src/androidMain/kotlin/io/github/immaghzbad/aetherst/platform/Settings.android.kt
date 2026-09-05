@@ -25,6 +25,11 @@ class AndroidSettings(context: Context) : Settings {
         prefs.edit { putInt(key, value) }
     }
 
+    override fun getLong(key: String, defaultValue: Long): Long = prefs.getLong(key, defaultValue)
+    override fun putLong(key: String, value: Long) {
+        prefs.edit { putLong(key, value) }
+    }
+
     override fun getStringSet(key: String, defaultValue: Set<String>): Set<String> =
         prefs.getStringSet(key, defaultValue) ?: defaultValue
 

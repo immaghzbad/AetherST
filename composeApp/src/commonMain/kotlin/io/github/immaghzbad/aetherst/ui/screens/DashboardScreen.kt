@@ -576,7 +576,7 @@ fun DashboardScreen(
     }
 }
 
-private const val TelegramChannelUrl = "https://t.me/PowerSigma"
+private const val TelegramChannelUrl = ""
 
 @Composable
 private fun SupportDialog(

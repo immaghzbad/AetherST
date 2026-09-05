@@ -22,7 +22,7 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "AetherST-Tunnel"
+rootProject.name = "AetherY"
 
 if (providers.gradleProperty("skipAndroid").getOrElse("false") != "true" && System.getProperty("skipAndroid") != "true") {
     include(":app")
